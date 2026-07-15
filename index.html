@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pankaj Bhardwaj • Way2Laabh • Elite Access</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0A0A0F;
+            background-image: radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.12) 0%, rgba(0, 0, 0, 0.98) 90%);
+            font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
+            color: #F1F5F9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.045'/%3E%3C/svg%3E");
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        canvas#energyFlow {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glass-glow {
+            position: fixed;
+            top: 20%;
+            left: 10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.2), rgba(59, 130, 246, 0.05));
+            filter: blur(100px);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glass-glow-2 {
+            position: fixed;
+            bottom: 10%;
+            right: 5%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.15), rgba(0, 0, 0, 0));
+            filter: blur(90px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 460px;
+            margin: 32px auto;
+            padding: 0 20px;
+        }
+
+        .modern-card {
+            background: rgba(10, 10, 18, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+            padding: 32px 24px 38px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .modern-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 48px;
+            padding: 1px;
+            background: linear-gradient(125deg, rgba(217, 70, 239, 0.5), rgba(96, 165, 250, 0.2), transparent);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .elite-badge {
+            display: none;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            width: fit-content;
+            margin: 0 auto 20px;
+            /* Non-interactive — not a button */
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .orbit-ring {
+            position: absolute;
+            inset: -18px;
+            border-radius: 50%;
+            background: conic-gradient(from 90deg, #C084FC, #3B82F6, #EC489A, #C084FC);
+            opacity: 0;
+            animation: spin 8s linear infinite;
+        }
+
+        .orbit-ring-2 {
+            inset: -28px;
+            background: conic-gradient(from 0deg, #FFD966, #FFA500, #F97316, #FFD966);
+            opacity: 0;
+            animation: spinRev 12s linear infinite;
+        }
+
+        .golden-edge {
+            background: linear-gradient(145deg, #FFE6B0, #D4A53A);
+            padding: 3px;
+            border-radius: 50%;
+        }
+
+        .inner-bg {
+            background: #0B0710;
+            border-radius: 50%;
+            padding: 3px;
+        }
+
+        .avatar-img {
+            width: 112px;
+            height: 112px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            box-shadow: none;
+            filter: none;
+            backdrop-filter: none;
+            image-rendering: crisp-edges;
+        }
+
+        .name-glow {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(30px, 8vw, 42px);
+            font-weight: 800;
+            text-align: center;
+            background: linear-gradient(135deg, #F9F3FF, #D9A7FA, #8B5CF6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+            margin-top: 12px;
+            /* Non-interactive */
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .domain-badge {
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #A78BFA;
+            background: rgba(139, 92, 246, 0.2);
+            display: inline-block;
+            width: auto;
+            margin: 8px auto 0;
+            padding: 4px 16px;
+            border-radius: 40px;
+            backdrop-filter: blur(2px);
+            font-family: monospace;
+            letter-spacing: 0.5px;
+            /* Non-interactive */
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .stats-chips {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 22px 0 16px;
+            /* Non-interactive */
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .chip {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #D9A7FA;
+            font-family: monospace;
+            backdrop-filter: blur(4px);
+        }
+
+        .feature-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin: 24px 0 20px;
+            /* Non-interactive */
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(105deg, rgba(30, 27, 46, 0.5), rgba(15, 12, 28, 0.6));
+            border-radius: 28px;
+            padding: 12px 18px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(4px);
+            /* Remove hover to avoid Pixel tracking it as CTA */
+            cursor: default;
+        }
+
+        .feature-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 1px solid rgba(217, 70, 239, 0.4);
+        }
+
+        .feature-desc h4 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+
+        .feature-desc p {
+            font-size: 12px;
+            color: #B9B3E6;
+            font-weight: 400;
+        }
+
+        .countdown-area {
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 60px;
+            padding: 12px 16px;
+            margin: 18px 0 24px;
+            border: 1px solid rgba(217, 70, 239, 0.3);
+            backdrop-filter: blur(8px);
+            /* Non-interactive */
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .timer-label {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #C4B5FD;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .timer-digits {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+        }
+
+        .time-unit {
+            text-align: center;
+            background: #03010A;
+            padding: 8px 10px;
+            min-width: 70px;
+            border-radius: 24px;
+            border-bottom: 2px solid #8B5CF6;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .time-number {
+            font-size: 36px;
+            font-weight: 800;
+            font-family: monospace;
+            background: linear-gradient(145deg, #FFF, #E2D6FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1;
+        }
+
+        .time-unit span:last-child {
+            font-size: 9px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9A8DD8;
+        }
+
+        .separator {
+            font-size: 38px;
+            font-weight: 800;
+            color: #F0A3FF;
+            text-shadow: 0 0 6px #C084FC;
+        }
+
+        /* ====== ONLY THIS IS A REAL BUTTON — TELEGRAM CTA ====== */
+
+        .cta-telegram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: linear-gradient(95deg, #A21CAF, #6D28D9, #2563EB);
+            border: none;
+            width: 100%;
+            padding: 18px 10px;
+            border-radius: 60px;
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: 1px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 12px 30px -8px rgba(139, 92, 246, 0.5);
+            text-decoration: none;
+            margin-bottom: 20px;
+            animation: pulseGlow 2s infinite;
+            /* Explicitly mark as the main CTA for Meta Pixel */
+            role: link;
+        }
+
+        .cta-telegram:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 40px -12px #8B5CF6;
+            background: linear-gradient(95deg, #B91C9C, #7C3AED, #3B82F6);
+            animation: none;
+        }
+
+        .cta-telegram:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes pulseGlow {
+            0% {
+                box-shadow: 0 12px 30px -8px rgba(139, 92, 246, 0.5);
+            }
+            50% {
+                box-shadow: 0 12px 40px -4px rgba(192, 132, 252, 0.8);
+            }
+            100% {
+                box-shadow: 0 12px 30px -8px rgba(139, 92, 246, 0.5);
+            }
+        }
+
+        .members-count {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            background: rgba(0, 0, 0, 0.3);
+            width: fit-content;
+            margin: 0 auto 20px;
+            padding: 6px 18px;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
+            /* Non-interactive */
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .green-led {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #4ade80;
+            animation: pulse 1.5s infinite;
+        }
+
+        .quote-wrap {
+            text-align: center;
+            border-top: 1px dashed rgba(139, 92, 246, 0.4);
+            padding-top: 22px;
+            margin-top: 8px;
+            /* Non-interactive */
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .quote-text {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            color: #CEC9FF;
+            line-height: 1.55;
+            letter-spacing: 0.3px;
+        }
+
+        .quote-author {
+            margin-top: 14px;
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            color: #6C63A1;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 8px;
+            font-weight: 400;
+            color: #4A4468;
+            letter-spacing: 1px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .offer-tag {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: linear-gradient(135deg, #FF416C, #FF4B2B);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4);
+            z-index: 15;
+            letter-spacing: 1px;
+            animation: bounce 1s ease infinite;
+            /* Non-interactive — decorative only */
+            pointer-events: none;
+            user-select: none;
+        }
+
+        @keyframes bounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spinRev {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(-360deg);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="energyFlow"></canvas>
+    <div class="glass-glow"></div>
+    <div class="glass-glow-2"></div>
+
+    <div class="container">
+        <div class="modern-card" style="position: relative;">
+
+            <!-- Decorative badge — pointer-events: none prevents Pixel from tracking -->
+            <div class="offer-tag" aria-hidden="true">
+                🔥 FREE JOINING 🔥
+            </div>
+
+            <!-- Avatar — decorative, not interactive -->
+            <div class="avatar-wrapper" aria-hidden="true">
+                <div class="orbit-ring"></div>
+                <div class="orbit-ring orbit-ring-2"></div>
+                <div class="golden-edge">
+                    <div class="inner-bg">
+                        <img class="avatar-img" src="/pankaj.png" alt="Pankaj Bhardwaj" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Name & Title — decorative -->
+            <h1 class="name-glow" aria-hidden="false">Pankaj Bhardwaj</h1>
+            <div style="text-align: center; margin: 4px 0 0px; pointer-events: none;">
+                <span class="domain-badge">WAY2LAABH</span>
+            </div>
+
+            <!-- ✅ THE ONLY REAL BUTTON — Meta Pixel will track only this -->
+            <a class="cta-telegram" href="https://t.me/+GrCjGDoTyHMxNmFl" target="_blank" rel="noopener noreferrer" id="telegram-cta-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>
+        <span>⚡ JOIN TELEGRAM FREE ⚡</span>
+      </a>
+
+            <!-- Tags — decorative, non-interactive -->
+            <div class="stats-chips" aria-hidden="true">
+                <span class="chip">#NIFTY_ELITE</span>
+                <span class="chip">#BANKNIFTY</span>
+                <span class="chip">#SENSEX_PRO</span>
+            </div>
+
+            <!-- Features — decorative, non-interactive -->
+            <div class="feature-grid" aria-hidden="true">
+                <div class="feature-item">
+                    <div class="feature-icon">📣</div>
+                    <div class="feature-desc">
+                        <h4>Live Trading Calls</h4>
+                        <p>Real-time entries &amp; exits</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-desc">
+                        <h4>95%+ Accuracy</h4>
+                        <p>Verified backtested results</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🏆</div>
+                    <div class="feature-desc">
+                        <h4>6+ Years Experience</h4>
+                        <p>Market expert edge</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Countdown — decorative, non-interactive -->
+            <div class="countdown-area" aria-hidden="true">
+                <div class="timer-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C084FC" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>🔥 LIMITED FREE ACCESS 🔥</span>
+                </div>
+                <div class="timer-digits">
+                    <div class="time-unit">
+                        <div class="time-number" id="minutes">03</div>
+                        <span>Minutes</span>
+                    </div>
+                    <div class="separator">:</div>
+                    <div class="time-unit">
+                        <div class="time-number" id="seconds">15</div>
+                        <span>Seconds</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Members count — decorative -->
+            <div class="members-count" aria-hidden="true">
+                <span class="green-led"></span>
+                <span>2,500+ ACTIVE TRADERS</span>
+                <span class="green-led" style="background: #EC489A; box-shadow: 0 0 6px #F472B6;"></span>
+            </div>
+
+            <!-- Quote — decorative -->
+            <div class="quote-wrap" aria-hidden="true">
+                <p class="quote-text">
+                    "नियम और अनुशासन ही सफलता की कुंजी है,<br> सही दिशा में लगातार बढ़ते रहो।"
+                </p>
+                <p class="quote-author">★ PANKAJ BHARDWAJ ★</p>
+            </div>
+
+            <div class="footer-note" aria-hidden="true">⚡ PREMIUM TRADING SIGNALS • ZERO NOISE ⚡</div>
+        </div>
+    </div>
+
+    <script>
+        // Energy particles
+        const canvas = document.getElementById('energyFlow');
+        let ctx2 = canvas.getContext('2d');
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        let particlesArray = [];
+        const PARTICLE_COUNT = 85;
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            particlesArray.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 2.2 + 0.6,
+                vx: (Math.random() - 0.5) * 0.28,
+                vy: (Math.random() - 0.5) * 0.22,
+                alpha: Math.random() * 0.4 + 0.1,
+                colorType: Math.random() > 0.6 ? 'purple' : 'blue'
+            });
+        }
+
+        function drawParticles() {
+            if (!ctx2) return;
+            ctx2.clearRect(0, 0, width, height);
+            for (let p of particlesArray) {
+                ctx2.beginPath();
+                ctx2.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                let gradient = ctx2.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 2);
+                if (p.colorType === 'purple') {
+                    gradient.addColorStop(0, `rgba(192, 132, 252, ${p.alpha})`);
+                    gradient.addColorStop(1, `rgba(139, 92, 246, 0.05)`);
+                } else {
+                    gradient.addColorStop(0, `rgba(59, 130, 246, ${p.alpha})`);
+                    gradient.addColorStop(1, `rgba(37, 99, 235, 0.03)`);
+                }
+                ctx2.fillStyle = gradient;
+                ctx2.fill();
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < -20) p.x = width + 20;
+                if (p.x > width + 20) p.x = -20;
+                if (p.y < -20) p.y = height + 20;
+                if (p.y > height + 20) p.y = -20;
+            }
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+
+        // Countdown
+        let totalSeconds = 3 * 60 + 15;
+        const minutesElem = document.getElementById('minutes');
+        const secondsElem = document.getElementById('seconds');
+
+        function updateTimerDisplay() {
+            if (!minutesElem || !secondsElem) return;
+            const mins = Math.floor(totalSeconds / 60);
+            const secs = totalSeconds % 60;
+            minutesElem.innerText = String(mins).padStart(2, '0');
+            secondsElem.innerText = String(secs).padStart(2, '0');
+        }
+
+        const countdownInterval = setInterval(() => {
+            if (totalSeconds <= 0) {
+                clearInterval(countdownInterval);
+                minutesElem.innerText = '00';
+                secondsElem.innerText = '00';
+            } else {
+                totalSeconds--;
+                updateTimerDisplay();
+            }
+        }, 1000);
+        updateTimerDisplay();
+
+        // Telegram button hover
+        const ctaButton = document.getElementById('telegram-cta-btn');
+        if (ctaButton) {
+            ctaButton.addEventListener('mouseover', () => {
+                ctaButton.style.transform = 'scale(1.02)';
+            });
+            ctaButton.addEventListener('mouseout', () => {
+                ctaButton.style.transform = 'scale(1)';
+            });
+        }
+
+        // Members count pulse (visual only, no click)
+        const membersDiv = document.querySelector('.members-count');
+        if (membersDiv) {
+            setInterval(() => {
+                membersDiv.style.transition = '0.2s';
+                membersDiv.style.boxShadow = '0 0 10px rgba(139,92,246,0.3)';
+                setTimeout(() => {
+                    membersDiv.style.boxShadow = 'none';
+                }, 400);
+            }, 2800);
+        }
+
+        // Ensure profile image has no effects
+        const profileImage = document.querySelector('.avatar-img');
+        if (profileImage) {
+            profileImage.style.boxShadow = 'none';
+            profileImage.style.filter = 'none';
+            profileImage.style.backdropFilter = 'none';
+        }
+    </script>
+    <!-- Meta Pixel Code -->
+    <script>
+        ! function(f, b, e, v, n, t, s) {
+            if (f.fbq) return;
+            n = f.fbq = function() {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n;
+            n.push = n;
+            n.loaded = !0;
+            n.version = '2.0';
+            n.queue = [];
+            t = b.createElement(e);
+            t.async = !0;
+            t.src = v;
+            s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '27019830617641602');
+        fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=27019830617641602&ev=PageView&noscript=1"
+/></noscript>
+    <!-- End Meta Pixel Code -->
+
+</body>
+
+</html>
